@@ -66,6 +66,12 @@ input[readonly]::selection{background:transparent}
 .rules{background:#1a1628;border-radius:14px;padding:12px;margin:12px 0 4px}.rules h2{font-size:13px;margin:0 0 8px}
 .rg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.rg b{display:block;font-size:28px;color:#ffd91a;line-height:1.1}.rg small{font-size:11px}
 .rn{margin-top:8px;font-size:13px;color:var(--o);text-align:center}
+.card>.rules{margin:0}
+.die{width:130px;height:130px;margin:18px auto 12px;background:#fff;border:4px solid #000;border-radius:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 #000}
+.die span{font-size:78px;font-weight:900;line-height:1;text-shadow:0 3px 0 #000}
+.die.roll{animation:tumble .5s linear infinite}.die.land{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
+@keyframes tumble{0%{transform:rotate(0) translateY(0) scale(1)}25%{transform:rotate(90deg) translateY(-28px) scale(1.1)}50%{transform:rotate(180deg) translateY(0) scale(1)}75%{transform:rotate(270deg) translateY(-28px) scale(1.1)}100%{transform:rotate(360deg) translateY(0) scale(1)}}
+@keyframes pop{0%{transform:scale(.5) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
 </style></head><body><div id="w"><header>
 <div class="logo" id="lg"></div><div class="sub">Compteur de scores</div>
 <button class="top" data-a="new" id="nb" hidden>↺ Nouvelle</button></header><div id="app"></div></div>
@@ -85,7 +91,7 @@ function render(){$('#nb').hidden=!S.started;$('#app').innerHTML=S.started?game(
 function setup(){return `<section class=card><h2>Joueurs</h2><div id=ch>${chipsIn()}</div>${S.players.map((p,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><input data-n=${i} value="${esc(p)}" placeholder="Joueur ${i+1}" maxlength=14>${S.players.length>3?`<button class=ic data-a=del data-i=${i}>✕</button>`:''}</div>`).join('')}
 ${S.players.length<8?'<button class=ghost style="width:100%;margin-top:6px" data-a=add>+ Ajouter un joueur</button>':''}
 <h2 style="margin-top:18px">Nombre de manches</h2><div class=row><button class=ic data-a=rm>−</button><b class=big>${S.rounds}</b><button class=ic data-a=rp>+</button><small>5 = durée moyenne</small></div>
-${rules(S.players.length)}<button class=main data-a=start>🎴 Commencer la partie</button></section>`}
+<button class=main data-a=start>🎴 Commencer la partie</button></section><section class=card>${rules(S.players.length)}</section>`}
 function game(){const T=totals(),n=S.players.length,d=S.scores.length,fin=d>=S.rounds,
 rank=i=>1+T.filter(t=>t<T[i]).length,ord=[...T.keys()].sort((a,b)=>T[a]-T[b]||a-b),
 medal=['🥇','🥈','🥉'],dv=S.dice[d],win=ord.filter(i=>rank(i)==1&&d>0);
@@ -94,10 +100,10 @@ if(fin)h+=`<section class=card><div class=ban>🏆 ${win.map(i=>esc(nm(i))).join
 else h+=`<section class=card><div class=info><div><h2 style="margin:0">Manche ${d+1} / ${S.rounds}</h2><small>Donneur : <b style="color:${PC[d%n]}">${esc(nm(d%n))}</b></small></div>
 <div style="text-align:right">${dv!=null?`<div class=suit style="color:${SU[dv][1]}">7${SU[dv][0]}</div><small>Papayoo</small>`:''}</div></div>
 <div class=row><button class=ghost data-a=dice>🎲 ${dv!=null?'Relancer':'Lancer le dé'}</button></div>
-${rules(n)}<button class=main data-a=edit data-r=${d}>✏️ Saisir les scores</button></section>`;
+<button class=main data-a=edit data-r=${d}>✏️ Saisir les scores</button></section>`;
 h+=`<section class=card><h2>Détail</h2><div class=sc><table><tr><th>Joueur</th>${S.scores.map((_,r)=>`<th data-a=edit data-r=${r}>M${r+1}</th>`).join('')}<th>Total</th></tr>
 ${S.players.map((_,i)=>`<tr><td><i class=dot style="display:inline-block;vertical-align:middle;background:${PC[i]}"></i> ${esc(nm(i))}</td>${S.scores.map(r=>`<td>${r[i]}</td>`).join('')}<td class=t>${T[i]}</td></tr>`).join('')}</table></div>${d?'<small>Touchez « M# » pour corriger une manche.</small>':'<small>Aucune manche jouée.</small>'}</section>`;
-return h}
+return h+`<section class=card>${rules(n)}</section>`}
 function modal(r){const row=S.scores[r]||[],m=document.createElement('div');m.className='modal';m.id='md';m.dataset.r=r;
 m.innerHTML=`<div class=sheet><h2>Manche ${r+1} — total attendu : 250</h2>${S.players.map((_,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><label>${esc(nm(i))}</label><input type=number ${TOUCH?'readonly data-k=1 inputmode=none':'inputmode=numeric'} min=0 data-s=${i} value="${row[i]??0}"><button class=ic data-a=cnt data-i=${i}>🧮</button><button class=ic data-a=comp data-i=${i}>＝</button></div>`).join('')}<div id=sum></div><small style="display:block;text-align:center;margin-bottom:10px">🧮 aide au comptage · ＝ complète avec le reste</small>
 <div class=row><button class=ghost data-a=close>Annuler</button></div><button class=main data-a=ok>✔ Valider</button></div>`;
@@ -124,7 +130,13 @@ const A={
 add(){S.players.push('');render()},del(e){S.players.splice(+e.dataset.i,1);render()},
 rm(){S.rounds=Math.max(1,S.rounds-1);render()},rp(){S.rounds=Math.min(20,S.rounds+1);render()},
 start(){S.players=S.players.map(p=>p.trim());S.players.forEach(p=>{if(p&&!S.saved.some(x=>x.toLowerCase()==p.toLowerCase()))S.saved.push(p)});S.started=true;S.scores=[];S.dice=[];render()},more(){S.rounds++;render()},
-dice(){S.dice[S.scores.length]=Math.floor(Math.random()*8)%4;render()},
+dice(){const res=Math.floor(Math.random()*8)%4,m=document.createElement('div');m.className='modal c';m.id='dz';
+m.innerHTML=`<div class=dlg><h3>🎲 Papayoo</h3><div id=die class="die roll"><span id=ds>🎲</span></div><div id=dt class=ban>&nbsp;</div><button class=main id=dok style="visibility:hidden;margin-top:14px">OK</button></div>`;
+document.body.append(m);const ds=m.querySelector('#ds'),die=m.querySelector('#die');let t=60;
+const step=()=>{if(t<400){const x=SU[Math.random()*4|0];ds.textContent=x[0];ds.style.color=x[1];t*=1.13;setTimeout(step,t)}else{const x=SU[res];
+ds.textContent=x[0];ds.style.color=x[1];die.className='die land';die.style.boxShadow=`0 0 44px ${x[1]},0 8px 0 #000`;
+m.querySelector('#dt').innerHTML=`Le 7${x[0]} est le Papayoo !`;S.dice[S.scores.length]=res;save();navigator.vibrate?.(40);
+const b=m.querySelector('#dok');b.style.visibility='visible';b.onclick=()=>{m.remove();render()}}};step()},
 edit(e){modal(+e.dataset.r)},close(){$('#md')?.remove()},
 comp(e){const x=ins(),i=+e.dataset.i;x[i].value=Math.max(0,250-x.reduce((a,el,k)=>a+(k==i?0:+el.value||0),0));upd();chelem(i)},
 pick(e){let i=S.players.findIndex(p=>!p.trim());if(i<0&&S.players.length<8){S.players.push('');i=S.players.length-1}if(i>=0)S.players[i]=e.dataset.nm;render()},
