@@ -63,6 +63,9 @@ body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-
 input:not([readonly]){-webkit-user-select:text;user-select:text}
 input[readonly]{-webkit-user-select:none;user-select:none}
 input[readonly]::selection{background:transparent}
+.rules{background:#1a1628;border-radius:14px;padding:12px;margin:12px 0 4px}.rules h2{font-size:13px;margin:0 0 8px}
+.rg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.rg b{display:block;font-size:28px;color:#ffd91a;line-height:1.1}.rg small{font-size:11px}
+.rn{margin-top:8px;font-size:13px;color:var(--o);text-align:center}
 </style></head><body><div id="w"><header>
 <div class="logo" id="lg"></div><div class="sub">Compteur de scores</div>
 <button class="top" data-a="new" id="nb" hidden>↺ Nouvelle</button></header><div id="app"></div></div>
@@ -76,11 +79,13 @@ const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}},
 nm=i=>S.players[i]||('Joueur '+(i+1)),
 totals=()=>S.players.map((_,i)=>S.scores.reduce((a,r)=>a+(r[i]||0),0));
 $('#lg').innerHTML=[...'PAPAYOO'].map((c,i)=>`<span style="color:${PC[i]};transform:rotate(${[-6,4,-3,5,-5,3,-4][i]}deg)">${c}</span>`).join('');
+const RL={3:[20,5],4:[15,5],5:[12,4],6:[10,4],7:[8,3],8:[7,3]},
+rules=n=>{const[c,p]=RL[n]||[0,0];return `<div class=rules><h2>📋 Rappel · ${n} joueurs</h2><div class=rg><div><b>${c}</b><small>cartes par joueur</small></div><div><b>${p}</b><small>cartes à passer à gauche</small></div><div><b>${n>6?56:60}</b><small>cartes dans le jeu</small></div></div>${n>6?'<div class=rn>⚠️ Retirer les 4 As (1♠ 1♥ 1♦ 1♣) avant la donne</div>':''}<div class=rn style="color:var(--mu)">Donnez votre écart à gauche avant de regarder celui reçu, puis le donneur lance le dé.</div></div>`};
 function render(){$('#nb').hidden=!S.started;$('#app').innerHTML=S.started?game():setup();save()}
 function setup(){return `<section class=card><h2>Joueurs</h2><div id=ch>${chipsIn()}</div>${S.players.map((p,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><input data-n=${i} value="${esc(p)}" placeholder="Joueur ${i+1}" maxlength=14>${S.players.length>3?`<button class=ic data-a=del data-i=${i}>✕</button>`:''}</div>`).join('')}
 ${S.players.length<8?'<button class=ghost style="width:100%;margin-top:6px" data-a=add>+ Ajouter un joueur</button>':''}
 <h2 style="margin-top:18px">Nombre de manches</h2><div class=row><button class=ic data-a=rm>−</button><b class=big>${S.rounds}</b><button class=ic data-a=rp>+</button><small>5 = durée moyenne</small></div>
-<button class=main data-a=start>🎴 Commencer la partie</button></section>`}
+${rules(S.players.length)}<button class=main data-a=start>🎴 Commencer la partie</button></section>`}
 function game(){const T=totals(),n=S.players.length,d=S.scores.length,fin=d>=S.rounds,
 rank=i=>1+T.filter(t=>t<T[i]).length,ord=[...T.keys()].sort((a,b)=>T[a]-T[b]||a-b),
 medal=['🥇','🥈','🥉'],dv=S.dice[d],win=ord.filter(i=>rank(i)==1&&d>0);
@@ -89,7 +94,7 @@ if(fin)h+=`<section class=card><div class=ban>🏆 ${win.map(i=>esc(nm(i))).join
 else h+=`<section class=card><div class=info><div><h2 style="margin:0">Manche ${d+1} / ${S.rounds}</h2><small>Donneur : <b style="color:${PC[d%n]}">${esc(nm(d%n))}</b></small></div>
 <div style="text-align:right">${dv!=null?`<div class=suit style="color:${SU[dv][1]}">7${SU[dv][0]}</div><small>Papayoo</small>`:''}</div></div>
 <div class=row><button class=ghost data-a=dice>🎲 ${dv!=null?'Relancer':'Lancer le dé'}</button></div>
-<button class=main data-a=edit data-r=${d}>✏️ Saisir les scores</button></section>`;
+${rules(n)}<button class=main data-a=edit data-r=${d}>✏️ Saisir les scores</button></section>`;
 h+=`<section class=card><h2>Détail</h2><div class=sc><table><tr><th>Joueur</th>${S.scores.map((_,r)=>`<th data-a=edit data-r=${r}>M${r+1}</th>`).join('')}<th>Total</th></tr>
 ${S.players.map((_,i)=>`<tr><td><i class=dot style="display:inline-block;vertical-align:middle;background:${PC[i]}"></i> ${esc(nm(i))}</td>${S.scores.map(r=>`<td>${r[i]}</td>`).join('')}<td class=t>${T[i]}</td></tr>`).join('')}</table></div>${d?'<small>Touchez « M# » pour corriger une manche.</small>':'<small>Aucune manche jouée.</small>'}</section>`;
 return h}
