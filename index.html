@@ -72,70 +72,128 @@ input[readonly]::selection{background:transparent}
 .die.roll{animation:tumble .5s linear infinite}.die.land{animation:pop .6s cubic-bezier(.3,1.6,.5,1)}
 @keyframes tumble{0%{transform:rotate(0) translateY(0) scale(1)}25%{transform:rotate(90deg) translateY(-28px) scale(1.1)}50%{transform:rotate(180deg) translateY(0) scale(1)}75%{transform:rotate(270deg) translateY(-28px) scale(1.1)}100%{transform:rotate(360deg) translateY(0) scale(1)}}
 @keyframes pop{0%{transform:scale(.5) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
+.lg2{right:auto;left:0}
+.lgl{display:grid;gap:8px;margin:14px 0}.lo{background:#352e4d;display:flex;align-items:center;gap:12px;font-size:18px;text-align:left;box-shadow:0 4px 0 #000}.lo span{font-size:26px}.lo.on{background:linear-gradient(#ff5a3c,#e8283c)}
 </style></head><body><div id="w"><header>
-<div class="logo" id="lg"></div><div class="sub">Compteur de scores</div>
-<button class="top" data-a="new" id="nb" hidden>↺ Nouvelle</button></header><div id="app"></div></div>
+<div class="logo" id="lg"></div><div class="sub" id="sb"></div>
+<button class="top lg2" data-a="lang" id="lb"></button><button class="top" data-a="new" id="nb" hidden></button></header><div id="app"></div></div>
 <script>
 const K='papayoo-v1',SU=[['♠','#ff9a1f'],['♥','#e8283c'],['♦','#b455ff'],['♣','#4cc13f']],
 PC=['#ff3fa4','#1f7bff','#ffd91a','#ff9a1f','#4cc13f','#b455ff','#e8283c','#19d3da'],
 $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';');
 let S=null;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
-S=S||{players:['','','',''],rounds:5,scores:[],dice:[],started:false};S.saved=S.saved||[];
+S=S||{players:['','','',''],rounds:5,scores:[],dice:[],started:false};S.saved=S.saved||[];S.lang=S.lang||(['fr','en','es','de','it'].find(c=>(navigator.language||'').toLowerCase().startsWith(c))||'en');
+const LG=[['fr','🇫🇷','Français'],['en','🇬🇧','English'],['es','🇪🇸','Español'],['de','🇩🇪','Deutsch'],['it','🇮🇹','Italiano']],L={en:{},es:{},de:{},it:{}};
+`Compteur de scores|Score tracker|Marcador|Punktezähler|Segnapunti
+↺ Nouvelle|↺ New|↺ Nueva|↺ Neu|↺ Nuova
+Joueurs|Players|Jugadores|Spieler|Giocatori
+Joueur {0}|Player {0}|Jugador {0}|Spieler {0}|Giocatore {0}
++ Ajouter un joueur|+ Add a player|+ Añadir jugador|+ Spieler hinzufügen|+ Aggiungi giocatore
+Nombre de manches|Number of rounds|Número de rondas|Anzahl Runden|Numero di mani
+5 = durée moyenne|5 = medium length|5 = duración media|5 = mittlere Dauer|5 = durata media
+🎴 Commencer la partie|🎴 Start the game|🎴 Empezar la partida|🎴 Spiel starten|🎴 Inizia la partita
+Joueurs enregistrés — touchez pour ajouter|Saved players — tap to add|Jugadores guardados — toca para añadir|Gespeicherte Spieler — zum Hinzufügen antippen|Giocatori salvati — tocca per aggiungere
+Classement|Ranking|Clasificación|Rangliste|Classifica
+🏆 {0} gagne !|🏆 {0} wins!|🏆 ¡{0} gana!|🏆 {0} gewinnt!|🏆 {0} vince!
+🏆 {0} gagnent !|🏆 {0} win!|🏆 ¡{0} ganan!|🏆 {0} gewinnen!|🏆 {0} vincono!
++ 1 manche|+ 1 round|+ 1 ronda|+ 1 Runde|+ 1 mano
+Corriger|Edit|Corregir|Korrigieren|Correggi
+Manche {0} / {1}|Round {0} / {1}|Ronda {0} / {1}|Runde {0} / {1}|Mano {0} / {1}
+Donneur :|Dealer:|Reparte:|Geber:|Mazziere:
+Relancer|Roll again|Volver a tirar|Neu würfeln|Rilancia
+Lancer le dé|Roll the die|Tirar el dado|Würfeln|Lancia il dado
+✏️ Saisir les scores|✏️ Enter scores|✏️ Introducir puntos|✏️ Punkte eintragen|✏️ Inserisci i punteggi
+Détail|Details|Detalle|Details|Dettaglio
+Joueur|Player|Jugador|Spieler|Giocatore
+Total|Total|Total|Gesamt|Totale
+M{0}|R{0}|R{0}|R{0}|M{0}
+Touchez « M# » pour corriger une manche.|Tap “R#” to edit a round.|Toca «R#» para corregir una ronda.|„R#“ antippen, um eine Runde zu korrigieren.|Tocca «M#» per correggere una mano.
+Aucune manche jouée.|No round played yet.|Ninguna ronda jugada.|Noch keine Runde gespielt.|Nessuna mano giocata.
+Manche {0} — total attendu : 250|Round {0} — expected total: 250|Ronda {0} — total esperado: 250|Runde {0} — erwartete Summe: 250|Mano {0} — totale atteso: 250
+🧮 aide au comptage · ＝ complète avec le reste|🧮 counting helper · ＝ fills in the remainder|🧮 ayuda para contar · ＝ completa con el resto|🧮 Zählhilfe · ＝ ergänzt den Rest|🧮 aiuto al conteggio · ＝ completa con il resto
+Annuler|Cancel|Cancelar|Abbrechen|Annulla
+✔ Valider|✔ Confirm|✔ Validar|✔ Bestätigen|✔ Conferma
+Valider|Confirm|Validar|Bestätigen|Conferma
+👑 Grand chelem : total {0} ✓|👑 Grand slam: total {0} ✓|👑 Gran slam: total {0} ✓|👑 Großer Schlem: Summe {0} ✓|👑 Grande slam: totale {0} ✓
+Total : {0} / 250|Total: {0} / 250|Total: {0} / 250|Summe: {0} / 250|Totale: {0} / 250
+(reste {0})|({0} left)|(faltan {0})|({0} übrig)|(restano {0})
+Touchez les cartes de points ramassées|Tap the point cards you collected|Toca las cartas de puntos que recogiste|Tippe auf die gesammelten Punktekarten|Tocca le carte di punti prese
+Total incorrect|Incorrect total|Total incorrecto|Falsche Summe|Totale errato
+Le total est de {0} au lieu de 250.|The total is {0} instead of 250.|El total es {0} en lugar de 250.|Die Summe beträgt {0} statt 250.|Il totale è {0} invece di 250.
+Valider quand même|Confirm anyway|Validar igualmente|Trotzdem bestätigen|Conferma comunque
+Nouvelle partie ?|New game?|¿Nueva partida?|Neues Spiel?|Nuova partita?
+La partie en cours sera effacée. Vos joueurs restent enregistrés.|The current game will be erased. Your players stay saved.|La partida actual se borrará. Tus jugadores siguen guardados.|Das laufende Spiel wird gelöscht. Deine Spieler bleiben gespeichert.|La partita in corso sarà cancellata. I tuoi giocatori restano salvati.
+Nouvelle partie|New game|Nueva partida|Neues Spiel|Nuova partita
+Grand chelem ?|Grand slam?|¿Gran slam?|Großer Schlem?|Grande slam?
+{0} a marqué les 250 points. Mettre 0 à {0} et 250 à tous les autres joueurs ?|{0} took all 250 points. Give 0 to {0} and 250 to every other player?|{0} se llevó los 250 puntos. ¿Poner 0 a {0} y 250 a todos los demás?|{0} hat alle 250 Punkte bekommen. {0} 0 Punkte und allen anderen 250 geben?|{0} ha preso tutti i 250 punti. Dare 0 a {0} e 250 a tutti gli altri?
+Appliquer|Apply|Aplicar|Anwenden|Applica
+Le 7{0} est le Papayoo !|The 7{0} is the Papayoo!|¡El 7{0} es el Papayoo!|Die 7{0} ist der Papayoo!|Il 7{0} è il Papayoo!
+📋 Rappel · {0} joueurs|📋 Reminder · {0} players|📋 Recordatorio · {0} jugadores|📋 Erinnerung · {0} Spieler|📋 Promemoria · {0} giocatori
+cartes par joueur|cards per player|cartas por jugador|Karten pro Spieler|carte per giocatore
+cartes à passer à gauche|cards to pass left|cartas a pasar a la izquierda|Karten nach links weitergeben|carte da passare a sinistra
+cartes dans le jeu|cards in the deck|cartas en el mazo|Karten im Spiel|carte nel mazzo
+⚠️ Retirer les 4 As (1♠ 1♥ 1♦ 1♣) avant la donne|⚠️ Remove the 4 Aces (1♠ 1♥ 1♦ 1♣) before dealing|⚠️ Retira los 4 Ases (1♠ 1♥ 1♦ 1♣) antes de repartir|⚠️ Vor dem Austeilen die 4 Asse (1♠ 1♥ 1♦ 1♣) entfernen|⚠️ Togli i 4 Assi (1♠ 1♥ 1♦ 1♣) prima di distribuire
+Donnez votre écart à gauche avant de regarder celui reçu, puis le donneur lance le dé.|Pass your cards to the left before looking at the ones you receive, then the dealer rolls the die.|Pasa tus cartas a la izquierda antes de mirar las recibidas; luego el repartidor tira el dado.|Gib deine Karten nach links, bevor du die erhaltenen ansiehst; dann würfelt der Geber.|Passa le tue carte a sinistra prima di guardare quelle ricevute, poi il mazziere lancia il dado.
+Langue|Language|Idioma|Sprache|Lingua`.split('\n').forEach(r=>{r=r.split('|');['en','es','de','it'].forEach((c,i)=>L[c][r[0]]=r[i+1])});
+const t=(k,...a)=>{let s=(L[S.lang]&&L[S.lang][k])||k;a.forEach((v,i)=>s=s.split('{'+i+'}').join(v));return s};
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}},
-nm=i=>S.players[i]||('Joueur '+(i+1)),
+nm=i=>S.players[i]||t('Joueur {0}',i+1),
 totals=()=>S.players.map((_,i)=>S.scores.reduce((a,r)=>a+(r[i]||0),0));
 $('#lg').innerHTML=[...'PAPAYOO'].map((c,i)=>`<span style="color:${PC[i]};transform:rotate(${[-6,4,-3,5,-5,3,-4][i]}deg)">${c}</span>`).join('');
 const RL={3:[20,5],4:[15,5],5:[12,4],6:[10,4],7:[8,3],8:[7,3]},
-rules=n=>{const[c,p]=RL[n]||[0,0];return `<div class=rules><h2>📋 Rappel · ${n} joueurs</h2><div class=rg><div><b>${c}</b><small>cartes par joueur</small></div><div><b>${p}</b><small>cartes à passer à gauche</small></div><div><b>${n>6?56:60}</b><small>cartes dans le jeu</small></div></div>${n>6?'<div class=rn>⚠️ Retirer les 4 As (1♠ 1♥ 1♦ 1♣) avant la donne</div>':''}<div class=rn style="color:var(--mu)">Donnez votre écart à gauche avant de regarder celui reçu, puis le donneur lance le dé.</div></div>`};
-function render(){$('#nb').hidden=!S.started;$('#app').innerHTML=S.started?game():setup();save()}
-function setup(){return `<section class=card><h2>Joueurs</h2><div id=ch>${chipsIn()}</div>${S.players.map((p,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><input data-n=${i} value="${esc(p)}" placeholder="Joueur ${i+1}" maxlength=14>${S.players.length>3?`<button class=ic data-a=del data-i=${i}>✕</button>`:''}</div>`).join('')}
-${S.players.length<8?'<button class=ghost style="width:100%;margin-top:6px" data-a=add>+ Ajouter un joueur</button>':''}
-<h2 style="margin-top:18px">Nombre de manches</h2><div class=row><button class=ic data-a=rm>−</button><b class=big>${S.rounds}</b><button class=ic data-a=rp>+</button><small>5 = durée moyenne</small></div>
-<button class=main data-a=start>🎴 Commencer la partie</button></section><section class=card>${rules(S.players.length)}</section>`}
+rules=n=>{const[c,p]=RL[n]||[0,0];return `<div class=rules><h2>${t('📋 Rappel · {0} joueurs',n)}</h2><div class=rg><div><b>${c}</b><small>${t('cartes par joueur')}</small></div><div><b>${p}</b><small>${t('cartes à passer à gauche')}</small></div><div><b>${n>6?56:60}</b><small>${t('cartes dans le jeu')}</small></div></div>${n>6?'<div class=rn>'+t('⚠️ Retirer les 4 As (1♠ 1♥ 1♦ 1♣) avant la donne')+'</div>':''}<div class=rn style="color:var(--mu)">${t('Donnez votre écart à gauche avant de regarder celui reçu, puis le donneur lance le dé.')}</div></div>`};
+function render(){$('#sb').textContent=t('Compteur de scores');$('#nb').textContent=t('↺ Nouvelle');$('#lb').textContent='🌐 '+S.lang.toUpperCase();document.documentElement.lang=S.lang;$('#nb').hidden=!S.started;$('#app').innerHTML=S.started?game():setup();save()}
+function setup(){return `<section class=card><h2>${t('Joueurs')}</h2><div id=ch>${chipsIn()}</div>${S.players.map((p,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><input data-n=${i} value="${esc(p)}" placeholder="${t('Joueur {0}',i+1)}" maxlength=14>${S.players.length>3?`<button class=ic data-a=del data-i=${i}>✕</button>`:''}</div>`).join('')}
+${S.players.length<8?'<button class=ghost style="width:100%;margin-top:6px" data-a=add>'+t('+ Ajouter un joueur')+'</button>':''}
+<h2 style="margin-top:18px">${t('Nombre de manches')}</h2><div class=row><button class=ic data-a=rm>−</button><b class=big>${S.rounds}</b><button class=ic data-a=rp>+</button><small>${t('5 = durée moyenne')}</small></div>
+<button class=main data-a=start>${t('🎴 Commencer la partie')}</button></section><section class=card>${rules(S.players.length)}</section>`}
 function game(){const T=totals(),n=S.players.length,d=S.scores.length,fin=d>=S.rounds,
 rank=i=>1+T.filter(t=>t<T[i]).length,ord=[...T.keys()].sort((a,b)=>T[a]-T[b]||a-b),
 medal=['🥇','🥈','🥉'],dv=S.dice[d],win=ord.filter(i=>rank(i)==1&&d>0);
-let h=`<section class=card><h2>Classement</h2>${ord.map(i=>`<div class="rk ${rank(i)==1&&d>0?'w':''}" style="border-color:${PC[i]}"><span class=n>${d>0?medal[rank(i)-1]||rank(i):'•'}</span><b>${esc(nm(i))}</b><span class=t>${T[i]}</span></div>`).join('')}</section>`;
-if(fin)h+=`<section class=card><div class=ban>🏆 ${win.map(i=>esc(nm(i))).join(' & ')} ${win.length>1?'gagnent':'gagne'} !</div><div class=row><button class=ghost data-a=more>+ 1 manche</button><button class=ghost data-a=edit data-r=${d-1}>Corriger</button></div></section>`;
-else h+=`<section class=card><div class=info><div><h2 style="margin:0">Manche ${d+1} / ${S.rounds}</h2><small>Donneur : <b style="color:${PC[d%n]}">${esc(nm(d%n))}</b></small></div>
+let h=`<section class=card><h2>${t('Classement')}</h2>${ord.map(i=>`<div class="rk ${rank(i)==1&&d>0?'w':''}" style="border-color:${PC[i]}"><span class=n>${d>0?medal[rank(i)-1]||rank(i):'•'}</span><b>${esc(nm(i))}</b><span class=t>${T[i]}</span></div>`).join('')}</section>`;
+if(fin)h+=`<section class=card><div class=ban>${t(win.length>1?'🏆 {0} gagnent !':'🏆 {0} gagne !',win.map(i=>esc(nm(i))).join(' & '))}</div><div class=row><button class=ghost data-a=more>${t('+ 1 manche')}</button><button class=ghost data-a=edit data-r=${d-1}>${t('Corriger')}</button></div></section>`;
+else h+=`<section class=card><div class=info><div><h2 style="margin:0">${t('Manche {0} / {1}',d+1,S.rounds)}</h2><small>${t('Donneur :')} <b style="color:${PC[d%n]}">${esc(nm(d%n))}</b></small></div>
 <div style="text-align:right">${dv!=null?`<div class=suit style="color:${SU[dv][1]}">7${SU[dv][0]}</div><small>Papayoo</small>`:''}</div></div>
-<div class=row><button class=ghost data-a=dice>🎲 ${dv!=null?'Relancer':'Lancer le dé'}</button></div>
-<button class=main data-a=edit data-r=${d}>✏️ Saisir les scores</button></section>`;
-h+=`<section class=card><h2>Détail</h2><div class=sc><table><tr><th>Joueur</th>${S.scores.map((_,r)=>`<th data-a=edit data-r=${r}>M${r+1}</th>`).join('')}<th>Total</th></tr>
-${S.players.map((_,i)=>`<tr><td><i class=dot style="display:inline-block;vertical-align:middle;background:${PC[i]}"></i> ${esc(nm(i))}</td>${S.scores.map(r=>`<td>${r[i]}</td>`).join('')}<td class=t>${T[i]}</td></tr>`).join('')}</table></div>${d?'<small>Touchez « M# » pour corriger une manche.</small>':'<small>Aucune manche jouée.</small>'}</section>`;
+<div class=row><button class=ghost data-a=dice>🎲 ${t(dv!=null?'Relancer':'Lancer le dé')}</button></div>
+<button class=main data-a=edit data-r=${d}>${t('✏️ Saisir les scores')}</button></section>`;
+h+=`<section class=card><h2>${t('Détail')}</h2><div class=sc><table><tr><th>${t('Joueur')}</th>${S.scores.map((_,r)=>`<th data-a=edit data-r=${r}>${t('M{0}',r+1)}</th>`).join('')}<th>${t('Total')}</th></tr>
+${S.players.map((_,i)=>`<tr><td><i class=dot style="display:inline-block;vertical-align:middle;background:${PC[i]}"></i> ${esc(nm(i))}</td>${S.scores.map(r=>`<td>${r[i]}</td>`).join('')}<td class=t>${T[i]}</td></tr>`).join('')}</table></div>${d?'<small>'+t('Touchez « M# » pour corriger une manche.')+'</small>':'<small>'+t('Aucune manche jouée.')+'</small>'}</section>`;
 return h+`<section class=card>${rules(n)}</section>`}
 function modal(r){const row=S.scores[r]||[],m=document.createElement('div');m.className='modal';m.id='md';m.dataset.r=r;
-m.innerHTML=`<div class=sheet><h2>Manche ${r+1} — total attendu : 250</h2>${S.players.map((_,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><label>${esc(nm(i))}</label><input type=number ${TOUCH?'readonly data-k=1 inputmode=none':'inputmode=numeric'} min=0 data-s=${i} value="${row[i]??0}"><button class=ic data-a=cnt data-i=${i}>🧮</button><button class=ic data-a=comp data-i=${i}>＝</button></div>`).join('')}<div id=sum></div><small style="display:block;text-align:center;margin-bottom:10px">🧮 aide au comptage · ＝ complète avec le reste</small>
-<div class=row><button class=ghost data-a=close>Annuler</button></div><button class=main data-a=ok>✔ Valider</button></div>`;
+m.innerHTML=`<div class=sheet><h2>${t('Manche {0} — total attendu : 250',r+1)}</h2>${S.players.map((_,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><label>${esc(nm(i))}</label><input type=number ${TOUCH?'readonly data-k=1 inputmode=none':'inputmode=numeric'} min=0 data-s=${i} value="${row[i]??0}"><button class=ic data-a=cnt data-i=${i}>🧮</button><button class=ic data-a=comp data-i=${i}>＝</button></div>`).join('')}<div id=sum></div><small style="display:block;text-align:center;margin-bottom:10px">${t('🧮 aide au comptage · ＝ complète avec le reste')}</small>
+<div class=row><button class=ghost data-a=close>${t('Annuler')}</button></div><button class=main data-a=ok>${t('✔ Valider')}</button></div>`;
 document.body.append(m);upd()}
 const ins=()=>[...document.querySelectorAll('#md [data-s]')];
 const isGC=v=>v.length>2&&v.filter(x=>x==0).length==1&&v.filter(x=>x==250).length==v.length-1;
-function upd(){const v=ins().map(e=>+e.value||0),s=v.reduce((a,b)=>a+b,0),e=$('#sum'),g=isGC(v);e.className=s==250||g?'ok':'bad';e.textContent=g?`👑 Grand chelem : total ${s} ✓`:`Total : ${s} / 250 ${s==250?'✓':'(reste '+(250-s)+')'}`}
+function upd(){const v=ins().map(e=>+e.value||0),s=v.reduce((a,b)=>a+b,0),e=$('#sum'),g=isGC(v);e.className=s==250||g?'ok':'bad';e.textContent=g?t('👑 Grand chelem : total {0} ✓',s):t('Total : {0} / 250',s)+(s==250?' ✓':' '+t('(reste {0})',250-s))}
 const cs=()=>[...document.querySelectorAll('#ct .cd.on')].reduce((a,c)=>a+ +c.dataset.v,0),
-chipsIn=()=>{const l=S.saved.filter(n=>!S.players.some(p=>p.trim().toLowerCase()==n.toLowerCase()));return l.length?`<small>Joueurs enregistrés — touchez pour ajouter</small><div class=chips>${l.map(n=>`<span class=chip><b data-a=pick data-nm="${esc(n)}">${esc(n)}</b><i data-a=forget data-nm="${esc(n)}">✕</i></span>`).join('')}</div>`:''};
+chipsIn=()=>{const l=S.saved.filter(n=>!S.players.some(p=>p.trim().toLowerCase()==n.toLowerCase()));return l.length?`<small>${t('Joueurs enregistrés — touchez pour ajouter')}</small><div class=chips>${l.map(n=>`<span class=chip><b data-a=pick data-nm="${esc(n)}">${esc(n)}</b><i data-a=forget data-nm="${esc(n)}">✕</i></span>`).join('')}</div>`:''};
 function ask(ic,t,m,ok,cb){const d=document.createElement('div');d.className='modal c';d.id='cf';
-d.innerHTML=`<div class=dlg><div class=em>${ic}</div><h3>${t}</h3><p>${m}</p><div class=row><button class=ghost data-x=n>Annuler</button><button class=main style="flex:1;margin:0" data-x=y>${ok}</button></div></div>`;
+d.innerHTML=`<div class=dlg><div class=em>${ic}</div><h3>${t}</h3><p>${m}</p><div class=row><button class=ghost data-x=n>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-x=y>${ok}</button></div></div>`;
 d.querySelector('[data-x=n]').onclick=()=>d.remove();d.querySelector('[data-x=y]').onclick=()=>{d.remove();cb()};document.body.append(d)}
 const TOUCH=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 function keypad(i){const x=ins()[i];let b=String(+x.value||0),f=true;const m=document.createElement('div');m.className='modal c';m.id='kp';
-m.innerHTML=`<div class=dlg><h3>${esc(nm(i))}</h3><div id=kd class=kd>${b}</div><div class=kg>${['1','2','3','4','5','6','7','8','9','C','0','⌫'].map(k=>`<button class="kb${k=='C'||k=='⌫'?' op':''}" data-q="${k}">${k}</button>`).join('')}</div><div class=row><button class=ghost data-x=n>Annuler</button><button class=main style="flex:1;margin:0" data-x=y>Valider</button></div></div>`;
+m.innerHTML=`<div class=dlg><h3>${esc(nm(i))}</h3><div id=kd class=kd>${b}</div><div class=kg>${['1','2','3','4','5','6','7','8','9','C','0','⌫'].map(k=>`<button class="kb${k=='C'||k=='⌫'?' op':''}" data-q="${k}">${k}</button>`).join('')}</div><div class=row><button class=ghost data-x=n>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-x=y>${t('Valider')}</button></div></div>`;
 m.onclick=e=>{const q=e.target.closest('[data-q]');if(!q)return;const k=q.dataset.q;
 if(k=='C')b='0';else if(k=='⌫')b=b.length>1?b.slice(0,-1):'0';else{const n=f||b=='0'?k:b+k;if(+n<=250)b=n}
 f=false;m.querySelector('#kd').textContent=b};
 m.querySelector('[data-x=n]').onclick=()=>m.remove();
 m.querySelector('[data-x=y]').onclick=()=>{x.value=+b;m.remove();upd();chelem(i)};document.body.append(m)}
 function chelem(i){const x=ins();if(+x[i].value!=250)return;
-ask('👑','Grand chelem ?',`${esc(nm(i))} a marqué les 250 points. Mettre 0 à ${esc(nm(i))} et 250 à tous les autres joueurs ?`,'Appliquer',()=>{x.forEach((e,k)=>e.value=k==i?0:250);upd()})}
+ask('👑',t('Grand chelem ?'),t('{0} a marqué les 250 points. Mettre 0 à {0} et 250 à tous les autres joueurs ?',esc(nm(i))),t('Appliquer'),()=>{x.forEach((e,k)=>e.value=k==i?0:250);upd()})}
 const A={
+lang(){const m=document.createElement('div');m.className='modal c';m.id='lm';
+m.innerHTML=`<div class=dlg><h3>🌐 ${t('Langue')}</h3><div class=lgl>${LG.map(([c,f,n])=>`<button class="lo${c==S.lang?' on':''}" data-l=${c}><span>${f}</span>${n}</button>`).join('')}</div><button class=ghost style="width:100%" data-x=n>${t('Annuler')}</button></div>`;
+m.onclick=e=>{const b=e.target.closest('[data-l]');if(b){S.lang=b.dataset.l;m.remove();render()}else if(e.target==m||e.target.closest('[data-x=n]'))m.remove()};document.body.append(m)},
 add(){S.players.push('');render()},del(e){S.players.splice(+e.dataset.i,1);render()},
 rm(){S.rounds=Math.max(1,S.rounds-1);render()},rp(){S.rounds=Math.min(20,S.rounds+1);render()},
 start(){S.players=S.players.map(p=>p.trim());S.players.forEach(p=>{if(p&&!S.saved.some(x=>x.toLowerCase()==p.toLowerCase()))S.saved.push(p)});S.started=true;S.scores=[];S.dice=[];render()},more(){S.rounds++;render()},
 dice(){const res=Math.floor(Math.random()*8)%4,m=document.createElement('div');m.className='modal c';m.id='dz';
 m.innerHTML=`<div class=dlg><h3>🎲 Papayoo</h3><div id=die class="die roll"><span id=ds>🎲</span></div><div id=dt class=ban>&nbsp;</div><button class=main id=dok style="visibility:hidden;margin-top:14px">OK</button></div>`;
-document.body.append(m);const ds=m.querySelector('#ds'),die=m.querySelector('#die');let t=60;
-const step=()=>{if(t<400){const x=SU[Math.random()*4|0];ds.textContent=x[0];ds.style.color=x[1];t*=1.13;setTimeout(step,t)}else{const x=SU[res];
+document.body.append(m);const ds=m.querySelector('#ds'),die=m.querySelector('#die');let w=60;
+const step=()=>{if(w<400){const x=SU[Math.random()*4|0];ds.textContent=x[0];ds.style.color=x[1];w*=1.13;setTimeout(step,w)}else{const x=SU[res];
 ds.textContent=x[0];ds.style.color=x[1];die.className='die land';die.style.boxShadow=`0 0 44px ${x[1]},0 8px 0 #000`;
-m.querySelector('#dt').innerHTML=`Le 7${x[0]} est le Papayoo !`;S.dice[S.scores.length]=res;save();navigator.vibrate?.(40);
+m.querySelector('#dt').innerHTML=t('Le 7{0} est le Papayoo !',x[0]);S.dice[S.scores.length]=res;save();navigator.vibrate?.(40);
 const b=m.querySelector('#dok');b.style.visibility='visible';b.onclick=()=>{m.remove();render()}}};step()},
 edit(e){modal(+e.dataset.r)},close(){$('#md')?.remove()},
 comp(e){const x=ins(),i=+e.dataset.i;x[i].value=Math.max(0,250-x.reduce((a,el,k)=>a+(k==i?0:+el.value||0),0));upd();chelem(i)},
@@ -143,12 +201,12 @@ pick(e){let i=S.players.findIndex(p=>!p.trim());if(i<0&&S.players.length<8){S.pl
 forget(e){S.saved=S.saved.filter(x=>x!=e.dataset.nm);render()},
 cnt(e){const i=+e.dataset.i,dv=S.dice[+$('#md').dataset.r],m=document.createElement('div');m.className='modal c';m.id='ct';m.dataset.i=i;
 const pp=dv!=null?`<button class="cd pp" style="background:${SU[dv][1]}" data-v=40><b>7${SU[dv][0]}</b><small>Papayoo 40</small></button>`:`<button class="cd pp" style="background:#ff9a1f" data-v=40><b>Papayoo</b><small>40 pts</small></button>`;
-m.innerHTML=`<div class=dlg><h3>🧮 ${esc(nm(i))}</h3><small>Touchez les cartes de points ramassées</small><div class=grid>${pp}${[...Array(20)].map((_,k)=>`<button class=cd data-v=${k+1}>${k+1}</button>`).join('')}</div><div id=ctt class=ban>0 pt</div><div class=row><button class=ghost data-a=cno>Annuler</button><button class=main style="flex:1;margin:0" data-a=cok>Valider</button></div></div>`;document.body.append(m)},
+m.innerHTML=`<div class=dlg><h3>🧮 ${esc(nm(i))}</h3><small>${t('Touchez les cartes de points ramassées')}</small><div class=grid>${pp}${[...Array(20)].map((_,k)=>`<button class=cd data-v=${k+1}>${k+1}</button>`).join('')}</div><div id=ctt class=ban>0 pt</div><div class=row><button class=ghost data-a=cno>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-a=cok>${t('Valider')}</button></div></div>`;document.body.append(m)},
 cno(){$('#ct').remove()},
 cok(){const t=cs(),i=+$('#ct').dataset.i;ins()[i].value=t;$('#ct').remove();upd();chelem(i)},
 ok(){const r=+$('#md').dataset.r,v=ins().map(e=>Math.max(0,Math.round(+e.value||0))),s=v.reduce((a,b)=>a+b,0);
-const go=()=>{S.scores[r]=v;A.close();render()};if(s!=250&&!isGC(v))ask('⚠️','Total incorrect',`Le total est de ${s} au lieu de 250.`,'Valider quand même',go);else go()},
-new(){ask('🎴','Nouvelle partie ?','La partie en cours sera effacée. Vos joueurs restent enregistrés.','Nouvelle partie',()=>{S.started=false;S.scores=[];S.dice=[];render()})}};
+const go=()=>{S.scores[r]=v;A.close();render()};if(s!=250&&!isGC(v))ask('⚠️',t('Total incorrect'),t('Le total est de {0} au lieu de 250.',s),t('Valider quand même'),go);else go()},
+new(){ask('🎴',t('Nouvelle partie ?'),t('La partie en cours sera effacée. Vos joueurs restent enregistrés.'),t('Nouvelle partie'),()=>{S.started=false;S.scores=[];S.dice=[];render()})}};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b)});
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset.n!==undefined){S.players[+t.dataset.n]=t.value;save();const c=$('#ch');if(c)c.innerHTML=chipsIn()}if(t.dataset.s!==undefined){upd();if(t.value!==''&&+t.value==250)chelem(+t.dataset.s)}});
 document.addEventListener('click',e=>{const c=e.target.closest('.cd');if(c){c.classList.toggle('on');const t=cs();$('#ctt').textContent=t+' pt'+(t>1?'s':'')}});
