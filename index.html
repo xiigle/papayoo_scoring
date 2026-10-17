@@ -170,8 +170,8 @@ const isGC=v=>v.length>2&&v.filter(x=>x==0).length==1&&v.filter(x=>x==250).lengt
 function upd(){const v=ins().map(e=>+e.value||0),s=v.reduce((a,b)=>a+b,0),e=$('#sum'),g=isGC(v);e.className=s==250||g?'ok':'bad';e.textContent=g?t('👑 Grand chelem : total {0} ✓',s):t('Total : {0} / 250',s)+(s==250?' ✓':' '+t('(reste {0})',250-s))}
 const cs=()=>[...document.querySelectorAll('#ct .cd.on')].reduce((a,c)=>a+ +c.dataset.v,0),
 chipsIn=()=>{const l=S.saved.filter(n=>!S.players.some(p=>p.trim().toLowerCase()==n.toLowerCase()));return l.length?`<small>${t('Joueurs enregistrés — touchez pour ajouter')}</small><div class=chips>${l.map(n=>`<span class=chip><b data-a=pick data-nm="${esc(n)}">${esc(n)}</b><i data-a=forget data-nm="${esc(n)}">✕</i></span>`).join('')}</div>`:''};
-function ask(ic,t,m,ok,cb){const d=document.createElement('div');d.className='modal c';d.id='cf';
-d.innerHTML=`<div class=dlg><div class=em>${ic}</div><h3>${t}</h3><p>${m}</p><div class=row><button class=ghost data-x=n>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-x=y>${ok}</button></div></div>`;
+function ask(ic,ti,m,ok,cb){const d=document.createElement('div');d.className='modal c';d.id='cf';
+d.innerHTML=`<div class=dlg><div class=em>${ic}</div><h3>${ti}</h3><p>${m}</p><div class=row><button class=ghost data-x=n>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-x=y>${ok}</button></div></div>`;
 d.querySelector('[data-x=n]').onclick=()=>d.remove();d.querySelector('[data-x=y]').onclick=()=>{d.remove();cb()};document.body.append(d)}
 const TOUCH=matchMedia('(pointer:coarse)').matches||'ontouchstart' in window;
 function keypad(i){const x=ins()[i];let b=String(+x.value||0),f=true;const m=document.createElement('div');m.className='modal c';m.id='kp';
