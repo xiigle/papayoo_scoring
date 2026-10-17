@@ -74,6 +74,8 @@ input[readonly]::selection{background:transparent}
 @keyframes pop{0%{transform:scale(.5) rotate(-25deg)}100%{transform:scale(1) rotate(0)}}
 .lg2{right:auto;left:0}
 .lgl{display:grid;gap:8px;margin:14px 0}.lo{background:#352e4d;display:flex;align-items:center;gap:12px;font-size:18px;text-align:left;box-shadow:0 4px 0 #000}.lo span{font-size:26px}.lo.on{background:linear-gradient(#ff5a3c,#e8283c)}
+html{scrollbar-gutter:stable}html.lock,html.lock body{overflow:hidden}
+.modal{overscroll-behavior:contain;touch-action:none}.sheet,.dlg{touch-action:pan-y}
 </style></head><body><div id="w"><header>
 <div class="logo" id="lg"></div><div class="sub" id="sb"></div>
 <button class="top lg2" data-a="lang" id="lb"></button><button class="top" data-a="new" id="nb" hidden></button></header><div id="app"></div></div>
@@ -212,6 +214,7 @@ document.addEventListener('input',e=>{const t=e.target;if(t.dataset.n!==undefine
 document.addEventListener('click',e=>{const c=e.target.closest('.cd');if(c){c.classList.toggle('on');const t=cs();$('#ctt').textContent=t+' pt'+(t>1?'s':'')}});
 document.addEventListener('click',e=>{const k=e.target.closest('[data-k]');if(k)keypad(+k.dataset.s)});
 document.addEventListener('focusin',e=>{if(e.target.dataset.s!==undefined){if(e.target.readOnly)e.target.blur();else e.target.select()}});
+new MutationObserver(()=>document.documentElement.classList.toggle('lock',!!document.querySelector('.modal'))).observe(document.body,{childList:true});
 document.addEventListener('contextmenu',e=>{if(!e.target.closest('input:not([readonly])'))e.preventDefault()});
 document.addEventListener('selectstart',e=>{if(!e.target.closest?.('input:not([readonly])'))e.preventDefault()});
 render();
