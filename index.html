@@ -142,7 +142,7 @@ const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}},
 nm=i=>S.players[i]||t('Joueur {0}',i+1),
 totals=()=>S.players.map((_,i)=>S.scores.reduce((a,r)=>a+(r[i]||0),0));
 $('#lg').innerHTML=[...'PAPAYOO'].map((c,i)=>`<span style="color:${PC[i]};transform:rotate(${[-6,4,-3,5,-5,3,-4][i]}deg)">${c}</span>`).join('');
-const RL={3:[20,5],4:[15,5],5:[12,4],6:[10,4],7:[8,3],8:[7,3]},
+const RL={3:[20,5],4:[15,5],5:[12,4],6:[10,3],7:[8,3],8:[7,3]},
 rules=n=>{const[c,p]=RL[n]||[0,0];return `<div class=rules><h2>${t('📋 Rappel · {0} joueurs',n)}</h2><div class=rg><div><b>${c}</b><small>${t('cartes par joueur')}</small></div><div><b>${p}</b><small>${t('cartes à passer à gauche')}</small></div><div><b>${n>6?56:60}</b><small>${t('cartes dans le jeu')}</small></div></div>${n>6?'<div class=rn>'+t('⚠️ Retirer les 4 As (1♠ 1♥ 1♦ 1♣) avant la donne')+'</div>':''}<div class=rn style="color:var(--mu)">${t('Donnez votre écart à gauche avant de regarder celui reçu, puis le donneur lance le dé.')}</div></div>`};
 function render(){$('#sb').textContent=t('Compteur de scores');$('#nb').textContent=t('↺ Nouvelle');$('#lb').textContent='🌐 '+S.lang.toUpperCase();document.documentElement.lang=S.lang;$('#nb').hidden=!S.started;$('#app').innerHTML=S.started?game():setup();save()}
 function setup(){return `<section class=card><h2>${t('Joueurs')}</h2><div id=ch>${chipsIn()}</div>${S.players.map((p,i)=>`<div class=row><i class=dot style="background:${PC[i]}"></i><input data-n=${i} value="${esc(p)}" placeholder="${t('Joueur {0}',i+1)}" maxlength=14>${S.players.length>3?`<button class=ic data-a=del data-i=${i}>✕</button>`:''}</div>`).join('')}
