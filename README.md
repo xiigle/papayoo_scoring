@@ -6,6 +6,17 @@ Un seul fichier HTML, sans dépendance, sans connexion Internet, sans compte.
 
 > Projet non officiel, sans lien avec Gigamic ni GB Concept. Papayoo est une marque de ses propriétaires.
 
+## 🚀 Utilisation
+
+### En local
+Télécharger le zip du dépôt, dézipper et ouvrir simplement `index.html` dans un navigateur (double-clic).
+
+### Hébergée sur GitHub Pages
+[https://xiigle.github.io/papayoo_scoring/](https://xiigle.github.io/papayoo_scoring/)
+
+### Sur un smartphone comme application
+Lancer l'application depuis le dépôt (lien ci-dessus) et installer via le menu du navigateur comme application (ou utiliser le lien sur la page de démarrage d'une nouvelle partie de l'application)
+
 ## ✨ Fonctionnalités
 
 **Partie**
@@ -30,17 +41,6 @@ Un seul fichier HTML, sans dépendance, sans connexion Internet, sans compte.
 **Interface**
 - Thème sombre inspiré de l'univers du jeu, optimisé pour mobile
 - 5 langues : français, anglais, espagnol, allemand, italien (sélection par popup, langue du navigateur détectée au premier lancement)
-
-## 🚀 Utilisation
-
-### En local
-Télécharger le zip du dépôt, dézipper et ouvrir simplement `index.html` dans un navigateur (double-clic).
-
-### Hébergée sur GitHub Pages
-[https://xiigle.github.io/papayoo_scoring/](https://xiigle.github.io/papayoo_scoring/)
-
-### Sur un smartphone comme application
-Lancer l'application depuis le dépôt (lien ci-dessus) et installer via le menu du navigateur comme application (ou utiliser le lien sur la page de démarrage d'une nouvelle partie de l'application)
 
 ## 🎲 Rappel du décompte des points
 
