@@ -34,10 +34,13 @@ Un seul fichier HTML, sans dépendance, sans connexion Internet, sans compte.
 ## 🚀 Utilisation
 
 ### En local
-Ouvrez simplement `index.html` dans un navigateur (double-clic).
+Télécharger le zip du dépôt, dézipper et ouvrir simplement `index.html` dans un navigateur (double-clic).
 
 ### Hébergée sur GitHub Pages
 [https://xiigle.github.io/papayoo_scoring/](https://xiigle.github.io/papayoo_scoring/)
+
+### Sur un smartphone comme application
+Lancer l'application depuis le dépôt (lien ci-dessus) et installer via le menu du navigateur comme application (ou utiliser le lien sur la page de démarrage d'une nouvelle partie de l'application)
 
 ## 🎲 Rappel du décompte des points
 
