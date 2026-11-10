@@ -207,7 +207,7 @@ m.innerHTML=`<div class=dlg><h3>🌐 ${t('Langue')}</h3><div class=lgl>${LG.map(
 m.onclick=e=>{const b=e.target.closest('[data-l]');if(b){S.lang=b.dataset.l;m.remove();render()}else if(e.target==m||e.target.closest('[data-x=n]'))m.remove()};document.body.append(m)},
 add(){S.players.push('');render()},del(e){S.players.splice(+e.dataset.i,1);render()},
 rm(){S.rounds=Math.max(1,S.rounds-1);render()},rp(){S.rounds=Math.min(20,S.rounds+1);render()},
-start(){S.players=S.players.map(p=>p.trim());S.players.forEach(p=>{if(p&&!S.saved.some(x=>x.toLowerCase()==p.toLowerCase()))S.saved.push(p)});S.started=true;S.scores=[];S.dice=[];render()},more(){S.rounds++;render()},
+start(){S.players=S.players.map(p=>p.trim());S.players.forEach(p=>{if(p&&!S.saved.some(x=>x.toLowerCase()==p.toLowerCase()))S.saved.push(p)});S.started=true;S.scores=[];S.dice=[];S.cards={};render()},more(){S.rounds++;render()},
 dice(){const res=Math.floor(Math.random()*8)%4,m=document.createElement('div');m.className='modal c';m.id='dz';
 m.innerHTML=`<div class=dlg><h3>🎲 Papayoo</h3><div id=die class="die roll"><span id=ds>🎲</span></div><div id=dt class=ban>&nbsp;</div><button class=main id=dok style="visibility:hidden;margin-top:14px">OK</button></div>`;
 document.body.append(m);const ds=m.querySelector('#ds'),die=m.querySelector('#die');let w=60;
@@ -219,14 +219,16 @@ edit(e){modal(+e.dataset.r)},close(){$('#md')?.remove()},
 comp(e){const x=ins(),i=+e.dataset.i;x[i].value=Math.max(0,250-x.reduce((a,el,k)=>a+(k==i?0:+el.value||0),0));upd();chelem(i)},
 pick(e){let i=S.players.findIndex(p=>!p.trim());if(i<0&&S.players.length<8){S.players.push('');i=S.players.length-1}if(i>=0)S.players[i]=e.dataset.nm;render()},
 forget(e){S.saved=S.saved.filter(x=>x!=e.dataset.nm);render()},
-cnt(e){const i=+e.dataset.i,dv=S.dice[+$('#md').dataset.r],m=document.createElement('div');m.className='modal c';m.id='ct';m.dataset.i=i;
+cnt(e){const i=+e.dataset.i,r=+$('#md').dataset.r,dv=S.dice[r],m=document.createElement('div');m.className='modal c';m.id='ct';m.dataset.i=i;
 const pp=dv!=null?`<button class="cd pp" style="background:${SU[dv][1]}" data-v=40><b>7${SU[dv][0]}</b><small>Papayoo 40</small></button>`:`<button class="cd pp" style="background:#ff9a1f" data-v=40><b>Papayoo</b><small>40 pts</small></button>`;
-m.innerHTML=`<div class=dlg><h3>🧮 ${esc(nm(i))}</h3><small>${t('Touchez les cartes de points ramassées')}</small><div class=grid>${pp}${[...Array(20)].map((_,k)=>`<button class=cd data-v=${k+1}>${k+1}</button>`).join('')}</div><div id=ctt class=ban>0 pt</div><div class=row><button class=ghost data-a=cno>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-a=cok>${t('Valider')}</button></div></div>`;document.body.append(m)},
+m.innerHTML=`<div class=dlg><h3>🧮 ${esc(nm(i))}</h3><small>${t('Touchez les cartes de points ramassées')}</small><div class=grid>${pp}${[...Array(20)].map((_,k)=>`<button class=cd data-v=${k+1}>${k+1}</button>`).join('')}</div><div id=ctt class=ban>0 pt</div><div class=row><button class=ghost data-a=cno>${t('Annuler')}</button><button class=main style="flex:1;margin:0" data-a=cok>${t('Valider')}</button></div></div>`;document.body.append(m);
+const sv=(S.cards||{})[r+':'+i]||[],cur=+ins()[i].value||0;
+if(cur>0&&sv.reduce((a,b)=>a+b,0)==cur){m.querySelectorAll('.cd').forEach(c=>{if(sv.includes(+c.dataset.v))c.classList.add('on')});$('#ctt').textContent=cur+' pts'}},
 cno(){$('#ct').remove()},
-cok(){const t=cs(),i=+$('#ct').dataset.i;ins()[i].value=t;$('#ct').remove();upd();chelem(i)},
+cok(){const t=cs(),i=+$('#ct').dataset.i,r=+$('#md').dataset.r;(S.cards=S.cards||{})[r+':'+i]=[...document.querySelectorAll('#ct .cd.on')].map(c=>+c.dataset.v);save();ins()[i].value=t;$('#ct').remove();upd();chelem(i)},
 ok(){const r=+$('#md').dataset.r,v=ins().map(e=>Math.max(0,Math.round(+e.value||0))),s=v.reduce((a,b)=>a+b,0);
-const go=()=>{S.scores[r]=v;A.close();render()};if(s!=250&&!isGC(v))ask('⚠️',t('Total incorrect'),t('Le total est de {0} au lieu de 250.',s),t('Valider quand même'),go);else go()},
-new(){ask('🎴',t('Nouvelle partie ?'),t('La partie en cours sera effacée. Vos joueurs restent enregistrés.'),t('Nouvelle partie'),()=>{S.started=false;S.scores=[];S.dice=[];render()})}};
+const go=()=>{S.scores[r]=v;Object.keys(S.cards||{}).forEach(k=>{if(k.startsWith(r+':'))delete S.cards[k]});A.close();render()};if(s!=250&&!isGC(v))ask('⚠️',t('Total incorrect'),t('Le total est de {0} au lieu de 250.',s),t('Valider quand même'),go);else go()},
+new(){ask('🎴',t('Nouvelle partie ?'),t('La partie en cours sera effacée. Vos joueurs restent enregistrés.'),t('Nouvelle partie'),()=>{S.started=false;S.scores=[];S.dice=[];S.cards={};render()})}};
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&A[b.dataset.a])A[b.dataset.a](b)});
 document.addEventListener('input',e=>{const t=e.target;if(t.dataset.n!==undefined){S.players[+t.dataset.n]=t.value;save();const c=$('#ch');if(c)c.innerHTML=chipsIn()}if(t.dataset.s!==undefined){upd();if(t.value!==''&&+t.value==250)chelem(+t.dataset.s)}});
 document.addEventListener('click',e=>{const c=e.target.closest('.cd');if(c){c.classList.toggle('on');const t=cs();$('#ctt').textContent=t+' pt'+(t>1?'s':'')}});
